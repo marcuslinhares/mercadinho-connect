@@ -1,0 +1,57 @@
+name: CI - Antigravity Guard
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: 'npm'
+
+    - name: 🐍 Setup Python (for Antigravity Scripts)
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: 📥 Clone Antigravity Kit
+      run: |
+        git clone https://github.com/vudovn/antigravity-kit .temp_kit
+        # Se a pasta .agent já existir no repo, mantemos a nossa. 
+        # Se não, copiamos do kit fresco.
+        if [ ! -d ".agent" ]; then
+          cp -r .temp_kit/.agent .
+        else
+          # Atualiza scripts, mas mantém configs personalizadas (se houver)
+          cp -r .temp_kit/.agent/scripts .agent/
+        fi
+        rm -rf .temp_kit
+
+    - name: 📦 Install Dependencies
+      run: npm ci
+
+    - name: 🛡️ Run Verify All (The Gatekeeper)
+      # Roda sem URL (--no-e2e) porque no CI não temos servidor rodando ainda
+      # O foco aqui é Segurança, Lint e Build
+      run: python3 .agent/scripts/verify_all.py . --url http://localhost:3000 --no-e2e --stop-on-fail
+
+  docker-build:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' # Só gasta tempo de build no PR pra validar
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: 🐳 Build Docker Image
+        run: docker build . -t mercadinho-connect:test
