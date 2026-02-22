@@ -1,7 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { exec } from 'child_process';
-import crypto from 'crypto';
 
 const app = express();
 const PORT = 3001;
@@ -15,27 +14,6 @@ app.use(bodyParser.json({
     req.rawBody = buf.toString('utf8');
   }
 }));
-
-// Middleware para verificar assinatura do GitHub
-function verifyGitHubSignature(req, res, next) {
-  const signature = req.headers['x-hub-signature-256'];
-  if (!signature) {
-    console.log('[Webhook] ⚠️ Requisição sem assinatura');
-    return res.status(401).send('No signature');
-  }
-
-  const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
-  const digest = 'sha256=' + hmac.update(req.rawBody).digest('hex');
-
-  if (signature !== digest) {
-    console.log('[Webhook] ❌ Assinatura inválida');
-    console.log('[Webhook] Esperado:', digest);
-    console.log('[Webhook] Recebido:', signature);
-    return res.status(401).send('Invalid signature');
-  }
-
-  next();
-}
 
 // Endpoint do webhook
 app.post('/webhook/github', (req, res) => {  // Temporariamente sem verificação de assinatura
