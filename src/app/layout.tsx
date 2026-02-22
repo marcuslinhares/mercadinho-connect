@@ -5,6 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://ofertas.marcuslinhares.com'),
   title: "Mercadinho Connect",
   description: "As melhores ofertas do bairro no seu bolso!",
   manifest: "/manifest.json", // Futuro PWA
