@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ofertas.marcuslinhares.com'),
+  // metadataBase: new URL('https://ofertas.marcuslinhares.com'), // ❌ REMOVIDO DE PROPÓSITO PRA TESTAR AUTO-FIX
   title: "Mercadinho Connect",
   description: "As melhores ofertas do bairro no seu bolso!",
   manifest: "/manifest.json", // Futuro PWA
