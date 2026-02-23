@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
@@ -9,7 +9,6 @@ export const metadata: Metadata = {
   title: "Mercadinho Connect",
   description: "As melhores ofertas do bairro no seu bolso!",
   manifest: "/manifest.json",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   keywords: ['ofertas', 'mercadinho', 'promoções', 'supermercado', 'economia'],
   authors: [{ name: 'Mercadinho Connect' }],
   openGraph: {
@@ -17,6 +16,13 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     siteName: 'Mercadinho Connect',
   },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
