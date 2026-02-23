@@ -3,15 +3,47 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 export const revalidate = 0 // Atualiza sempre que entrar (sem cache velho)
+
+export const metadata: Metadata = {
+  title: 'Ofertas do Dia | Mercadinho Connect',
+  description: 'Confira as melhores ofertas e promoções do mercadinho do bairro! Produtos frescos com preços imperdíveis.',
+  openGraph: {
+    title: 'Ofertas do Dia | Mercadinho Connect',
+    description: 'Confira as melhores ofertas e promoções do mercadinho do bairro!',
+    type: 'website',
+    locale: 'pt_BR',
+  },
+}
 
 export default async function ShowcasePage() {
   const supabase = await createClient()
   const { data: offers } = await supabase.from('offers').select('*').order('created_at', { ascending: false })
 
+  // JSON-LD para GEO (AI Citation Readiness)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: 'Mercadinho Connect',
+    description: 'Ofertas e promoções diárias do mercadinho do bairro',
+    offers: offers?.map(offer => ({
+      '@type': 'Offer',
+      name: offer.title,
+      price: offer.price,
+      priceCurrency: 'BRL',
+    })) || [],
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
+      {/* JSON-LD para buscadores e AI */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Cabeçalho */}
       <header className="bg-red-600 text-white p-4 sticky top-0 z-10 shadow-md">
         <h1 className="text-xl font-bold flex items-center gap-2">
@@ -22,6 +54,8 @@ export default async function ShowcasePage() {
 
       {/* Lista de Ofertas */}
       <main className="p-4 space-y-4 max-w-md mx-auto">
+        <h2 className="text-2xl font-bold text-slate-800 mb-4">🔥 Promoções Imperdíveis</h2>
+        
         {offers?.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             <p>Nenhuma oferta cadastrada ainda. 😴</p>
