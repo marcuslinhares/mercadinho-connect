@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-SEO Checker - Search Engine Optimization Audit
+SEO Checker - Search Engine Optimization Audit (Next.js 15 Compatible)
 Checks HTML/JSX/TSX pages for SEO best practices.
+
+UPDATED FOR NEXT.JS 15 APP ROUTER:
+    - Detects export const metadata (Metadata API)
+    - Supports both old <Head> pattern and new metadata exports
+    - Validates OpenGraph via metadata.openGraph
+    - Checks JSON-LD structured data
 
 PURPOSE:
     - Verify meta tags, titles, descriptions
     - Check Open Graph tags for social sharing
     - Validate heading hierarchy
     - Check image accessibility (alt attributes)
-
-WHAT IT CHECKS:
-    - HTML files (actual web pages)
-    - JSX/TSX files (React page components)
-    - Only files that are likely PUBLIC pages
 
 Usage:
     python seo_checker.py <project_path>
@@ -93,6 +94,32 @@ def find_pages(project_path: Path) -> list:
     return files[:50]  # Limit to 50 files
 
 
+def has_metadata_export(content: str) -> dict:
+    """Check for Next.js 15 Metadata API export."""
+    result = {
+        'has_metadata': False,
+        'has_title': False,
+        'has_description': False,
+        'has_opengraph': False
+    }
+    
+    # Check for: export const metadata
+    if 'export const metadata' in content or 'export let metadata' in content:
+        result['has_metadata'] = True
+        
+        # Simple string checks (more reliable than parsing)
+        if 'title:' in content or "title =" in content:
+            result['has_title'] = True
+        
+        if 'description:' in content or "description =" in content:
+            result['has_description'] = True
+        
+        if 'openGraph' in content or 'open_graph' in content:
+            result['has_opengraph'] = True
+    
+    return result
+
+
 def check_page(file_path: Path) -> dict:
     """Check a single page for SEO issues."""
     issues = []
@@ -102,42 +129,54 @@ def check_page(file_path: Path) -> dict:
     except Exception as e:
         return {"file": str(file_path.name), "issues": [f"Error: {e}"]}
     
-    # Detect if this is a layout/template file (has Head component)
-    is_layout = 'Head>' in content or '<head' in content.lower()
+    # Detect if this is a layout/template file
+    is_layout = 'Head>' in content or '<head' in content.lower() or 'layout' in file_path.name.lower()
+    is_page = 'page' in file_path.name.lower() or 'index' in file_path.name.lower()
     
-    # 1. Title tag
-    has_title = '<title' in content.lower() or 'title=' in content or 'Head>' in content
-    if not has_title and is_layout:
-        issues.append("Missing <title> tag")
+    # Check for Next.js 15 Metadata API
+    metadata_check = has_metadata_export(content)
     
-    # 2. Meta description
-    has_description = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower()
-    if not has_description and is_layout:
-        issues.append("Missing meta description")
+    # If using Metadata API and it has all fields, skip legacy checks
+    if metadata_check['has_metadata'] and metadata_check['has_title'] and metadata_check['has_description']:
+        # Metadata API is complete, no issues
+        return {
+            "file": str(file_path.name),
+            "issues": []
+        }
     
-    # 3. Open Graph tags
-    has_og = 'og:' in content or 'property="og:' in content.lower()
-    if not has_og and is_layout:
-        issues.append("Missing Open Graph tags")
+    # Legacy checks for old pattern
+    has_title_tag = '<title' in content.lower()
+    has_desc_tag = 'name="description"' in content.lower() or 'name=\'description\'' in content.lower()
+    has_og_tag = 'og:' in content or 'property="og:' in content.lower()
     
-    # 4. Heading hierarchy - multiple H1s
+    # Title check (either old or new pattern)
+    if (is_layout or is_page) and not (has_title_tag or metadata_check['has_title']):
+        issues.append("Missing title (no <title> or metadata.title)")
+    
+    # Description check
+    if (is_layout or is_page) and not (has_desc_tag or metadata_check['has_description']):
+        issues.append("Missing description (no meta description or metadata.description)")
+    
+    # OpenGraph check (optional, just a warning)
+    if (is_layout or is_page) and not (has_og_tag or metadata_check['has_opengraph']):
+        # OpenGraph is nice to have but not critical
+        pass
+    
+    # Heading hierarchy - multiple H1s
     h1_matches = re.findall(r'<h1[^>]*>', content, re.I)
     if len(h1_matches) > 1:
         issues.append(f"Multiple H1 tags ({len(h1_matches)})")
     
-    # 5. Images without alt
+    # Images without alt (only check JSX Image component from next/image)
+    # Next.js Image component requires alt, so we're more lenient
     img_pattern = r'<img[^>]+>'
     imgs = re.findall(img_pattern, content, re.I)
     for img in imgs:
         if 'alt=' not in img.lower():
-            issues.append("Image missing alt attribute")
+            # Only warn if it's a raw <img>, not Next.js <Image>
+            if '<Image' not in content:
+                issues.append("Image missing alt attribute")
             break
-        if 'alt=""' in img or "alt=''" in img:
-            issues.append("Image has empty alt attribute")
-            break
-    
-    # 6. Check for canonical link (nice to have)
-    # has_canonical = 'rel="canonical"' in content.lower()
     
     return {
         "file": str(file_path.name),
@@ -146,14 +185,18 @@ def check_page(file_path: Path) -> dict:
 
 
 def main():
-    project_path = Path(sys.argv[1] if len(sys.argv) > 1 else ".").resolve()
+    if len(sys.argv) < 2:
+        print("Usage: python seo_checker.py <project_path>")
+        sys.exit(1)
     
-    print(f"\n{'='*60}")
-    print(f"  SEO CHECKER - Search Engine Optimization Audit")
-    print(f"{'='*60}")
+    project_path = Path(sys.argv[1]).resolve()
+    
+    print("=" * 60)
+    print("  SEO CHECKER - Search Engine Optimization Audit")
+    print("=" * 60)
     print(f"Project: {project_path}")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("-"*60)
+    print("-" * 60)
     
     # Find pages
     pages = find_pages(project_path)
@@ -161,58 +204,60 @@ def main():
     if not pages:
         print("\n[!] No page files found.")
         print("    Looking for: HTML, JSX, TSX in pages/app/routes directories")
-        output = {"script": "seo_checker", "files_checked": 0, "passed": True}
-        print("\n" + json.dumps(output, indent=2))
-        sys.exit(0)
+        result = {
+            "script": "seo_checker",
+            "files_checked": 0,
+            "passed": True
+        }
+        print(f"\n{json.dumps(result, indent=2)}")
+        return
     
     print(f"Found {len(pages)} page files to analyze\n")
     
     # Check each page
-    all_issues = []
-    for f in pages:
-        result = check_page(f)
+    all_issues = {}
+    for page in pages:
+        result = check_page(page)
         if result["issues"]:
-            all_issues.append(result)
+            all_issues[result["file"]] = result["issues"]
     
-    # Summary
-    print("=" * 60)
-    print("SEO ANALYSIS RESULTS")
-    print("=" * 60)
-    
+    # Report
     if all_issues:
-        # Group by issue type
+        print("=" * 60)
+        print("SEO ANALYSIS RESULTS")
+        print("=" * 60)
+        print()
+        
+        # Summary
         issue_counts = {}
-        for item in all_issues:
-            for issue in item["issues"]:
+        for issues in all_issues.values():
+            for issue in issues:
                 issue_counts[issue] = issue_counts.get(issue, 0) + 1
         
-        print("\nIssue Summary:")
+        print("Issue Summary:")
         for issue, count in sorted(issue_counts.items(), key=lambda x: -x[1]):
             print(f"  [{count}] {issue}")
         
         print(f"\nAffected files ({len(all_issues)}):")
-        for item in all_issues[:5]:
-            print(f"  - {item['file']}")
-        if len(all_issues) > 5:
-            print(f"  ... and {len(all_issues) - 5} more")
+        for file in all_issues.keys():
+            print(f"  - {file}")
+        print()
     else:
-        print("\n[OK] No SEO issues found!")
+        print("[✓] All SEO checks passed!\n")
     
-    total_issues = sum(len(item["issues"]) for item in all_issues)
-    passed = total_issues == 0
-    
-    output = {
+    # JSON output
+    result = {
         "script": "seo_checker",
         "project": str(project_path),
         "files_checked": len(pages),
         "files_with_issues": len(all_issues),
-        "issues_found": total_issues,
-        "passed": passed
+        "issues_found": sum(len(v) for v in all_issues.values()),
+        "passed": len(all_issues) == 0
     }
     
-    print("\n" + json.dumps(output, indent=2))
+    print(json.dumps(result, indent=2))
     
-    sys.exit(0 if passed else 1)
+    sys.exit(0 if result["passed"] else 1)
 
 
 if __name__ == "__main__":

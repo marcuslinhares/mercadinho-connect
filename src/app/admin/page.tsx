@@ -3,6 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Admin - Cadastrar Oferta | Mercadinho Connect',
+  description: 'Painel administrativo para cadastrar novas ofertas e promoções',
+  robots: 'noindex, nofollow', // Não indexar área admin
+}
 
 export default function AdminPage() {
   return (
