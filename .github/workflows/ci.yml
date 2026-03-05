@@ -43,7 +43,8 @@ jobs:
       if: failure()
       run: |
         echo "Acordando o subagent de correção..."
-        curl -X POST "${{ secrets.OPENCLAW_WEBHOOK_URL }}" \
+        curl -X POST "https://openclaw.marcuslinhares.com/hooks/ci_failure" \
+          -H "Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{"event": "ci_failure", "repo": "${{ github.repository }}", "branch": "${{ github.ref_name }}", "run_id": "${{ github.run_id }}"}'
 
