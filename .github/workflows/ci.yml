@@ -39,6 +39,14 @@ jobs:
       # O foco aqui é Segurança, Lint e Build
       run: python3 .agent/scripts/verify_all.py . --url http://localhost:3000 --no-e2e --stop-on-fail
 
+    - name: 🚨 Wake Up Subagent on Failure
+      if: failure()
+      run: |
+        echo "Acordando o subagent de correção..."
+        curl -X POST "${{ secrets.OPENCLAW_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d '{"event": "ci_failure", "repo": "${{ github.repository }}", "branch": "${{ github.ref_name }}", "run_id": "${{ github.run_id }}"}'
+
   docker-build:
     needs: quality-gate
     runs-on: ubuntu-latest
