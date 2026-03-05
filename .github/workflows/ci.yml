@@ -27,10 +27,9 @@ jobs:
 
     - name: 📥 Clone Antigravity Kit
       run: |
-        # Nosso projeto já tem scripts Antigravity customizados (.agent/)
-        # Não precisamos clonar - usamos os scripts versionados no repo
-        echo "✅ Usando scripts Antigravity versionados no repositório"
-        echo "   (customizados para Next.js 15)"
+        rm -rf .agent
+        git clone https://github.com/vudovn/antigravity-kit.git .agent
+        pip install -r .agent/requirements.txt
 
     - name: 📦 Install Dependencies
       run: npm ci
