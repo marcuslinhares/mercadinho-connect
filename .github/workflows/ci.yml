@@ -53,7 +53,9 @@ jobs:
             "name": "CI-AutoFix",
             "agentId": "ci-fixer",
             "model": "github-copilot/claude-sonnet-4.6",
-            "deliver": false,
+            "deliver": true,
+            "channel": "telegram",
+            "to": "7727702465",
             "wakeMode": "now"
           }'
 
