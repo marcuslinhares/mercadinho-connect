@@ -7,6 +7,9 @@ import type { Metadata } from 'next'
 
 export const revalidate = 0 // Atualiza sempre que entrar (sem cache velho)
 
+// INTENTIONAL ERROR FOR TESTING
+const testError: string = 42; // Type mismatch
+
 export const metadata: Metadata = {
   title: 'Ofertas do Dia | Mercadinho Connect',
   description: 'Confira as melhores ofertas e promoções do mercadinho do bairro! Produtos frescos com preços imperdíveis.',
