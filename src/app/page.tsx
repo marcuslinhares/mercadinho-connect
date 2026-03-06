@@ -20,7 +20,22 @@ export const metadata: Metadata = {
 
 export default async function ShowcasePage() {
   const supabase = await createClient()
-  const { data: offers } = await supabase.from('offers').select('*').order('created_at', { ascending: false })
+  
+  let offers = []
+  let error = null
+  
+  try {
+    const { data, error: supabaseError } = await supabase.from('offers').select('*').order('created_at', { ascending: false })
+    if (supabaseError) {
+      console.error('Supabase error:', supabaseError)
+      error = supabaseError.message
+    } else {
+      offers = data || []
+    }
+  } catch (err) {
+    console.error('Error fetching offers:', err)
+    error = err instanceof Error ? err.message : 'Erro desconhecido'
+  }
 
   // JSON-LD para GEO (AI Citation Readiness)
   const jsonLd = {
@@ -56,13 +71,20 @@ export default async function ShowcasePage() {
       <main className="p-4 space-y-4 max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-slate-800 mb-4">🔥 Promoções Imperdíveis</h2>
         
-        {offers?.length === 0 ? (
+        {error && (
+          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800">
+            <p className="text-sm"><strong>ℹ️ Observação:</strong> {error}</p>
+            <p className="text-xs mt-2">A tabela de ofertas pode estar vazia ou sem permissão de acesso.</p>
+          </div>
+        )}
+        
+        {!offers || offers.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             <p>Nenhuma oferta cadastrada ainda. 😴</p>
             <Link href="/admin" className="text-blue-500 underline mt-2 block">Sou o dono (Cadastrar)</Link>
           </div>
         ) : (
-          offers?.map((offer) => (
+          offers.map((offer) => (
             <Card key={offer.id} className="overflow-hidden border-none shadow-lg">
               <div className="relative h-64 w-full bg-gray-200">
                 {offer.photo_url && (
