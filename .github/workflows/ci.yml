@@ -59,6 +59,24 @@ jobs:
             "wakeMode": "now"
           }'
 
+    - name: ✅ Notify PR Merger on Success (if PR)
+      if: success() && github.event_name == 'pull_request'
+      run: |
+        echo "Notificando pr-merger sobre PR bem-sucedida..."
+        curl -X POST "https://openclaw.marcuslinhares.com/hooks/agent" \
+          -H "Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "message": "📊 **PR PASSING - Ready for Merge**\n\n**Repo**: ${{ github.repository }}\n**PR Number**: ${{ github.event.pull_request.number }}\n**PR Title**: ${{ github.event.pull_request.title }}\n**Branch**: ${{ github.event.pull_request.head.ref }}\n**Commits**: ${{ github.event.pull_request.commits }}\n**Files Changed**: ${{ github.event.pull_request.changed_files }}\n**Additions**: ${{ github.event.pull_request.additions }}\n**Deletions**: ${{ github.event.pull_request.deletions }}\n**PR URL**: https://github.com/${{ github.repository }}/pull/${{ github.event.pull_request.number }}\n\nPlease review and merge if safe.",
+            "name": "PR-Merge-Check",
+            "agentId": "pr-merger",
+            "model": "github-copilot/claude-sonnet-4.6",
+            "deliver": true,
+            "channel": "telegram",
+            "to": "7727702465",
+            "wakeMode": "now"
+          }'
+
   docker-build:
     needs: quality-gate
     runs-on: ubuntu-latest
