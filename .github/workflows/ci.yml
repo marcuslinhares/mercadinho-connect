@@ -52,6 +52,7 @@ jobs:
             "message": "🔧 **CI FAILURE - AUTO FIX**\n\n**Repo**: ${{ github.repository }}\n**Branch**: ${{ github.ref_name }}\n**Run ID**: ${{ github.run_id }}\n**Logs**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\nPlease:\n1. Clone the repo and checkout the failing branch\n2. Review the CI logs to identify the failure\n3. Fix the code issues\n4. Commit and push the fix\n5. Let me know when done",
             "name": "CI-AutoFix",
             "agentId": "ci-fixer",
+            "model": "github-copilot/claude-sonnet-4.6",
             "deliver": false,
             "wakeMode": "now"
           }'
