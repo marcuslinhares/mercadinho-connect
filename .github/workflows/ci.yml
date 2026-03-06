@@ -48,12 +48,10 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}" \
           -H "Content-Type: application/json" \
           -d '{
-            "message": "🚨 CI falhou no repositório ${{ github.repository }} na branch ${{ github.ref_name }}. Run ID: ${{ github.run_id }}. Por favor, analise os logs e corrija o código.",
-            "name": "CI-Failure",
-            "agentId": "main",
-            "deliver": true,
-            "channel": "telegram",
-            "to": "7727702465",
+            "message": "🔧 **CI FAILURE - AUTO FIX**\n\n**Repo**: ${{ github.repository }}\n**Branch**: ${{ github.ref_name }}\n**Run ID**: ${{ github.run_id }}\n**Logs**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\nPlease:\n1. Clone the repo and checkout the failing branch\n2. Review the CI logs to identify the failure\n3. Fix the code issues\n4. Commit and push the fix\n5. Let me know when done",
+            "name": "CI-AutoFix",
+            "agentId": "ci-fixer",
+            "deliver": false,
             "wakeMode": "now"
           }'
 
