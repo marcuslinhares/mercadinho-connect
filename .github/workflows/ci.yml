@@ -40,6 +40,23 @@ jobs:
       # O foco aqui é Segurança, Lint e Build
       run: python3 .agent/scripts/verify_all.py . --url http://localhost:3000 --no-e2e --stop-on-fail
 
+    - name: 🚨 Wake Up Subagent on Failure
+      if: failure()
+      run: |
+        echo "Acordando o subagent de correção..."
+        curl -X POST "https://openclaw.marcuslinhares.com/hooks/agent" \
+          -H "Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "message": "🚨 CI falhou no repositório ${{ github.repository }} na branch ${{ github.ref_name }}. Run ID: ${{ github.run_id }}. Por favor, analise os logs e corrija o código.",
+            "name": "CI-Failure",
+            "agentId": "main",
+            "deliver": true,
+            "channel": "telegram",
+            "to": "7727702465",
+            "wakeMode": "now"
+          }'
+
   docker-build:
     needs: quality-gate
     runs-on: ubuntu-latest
