@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { OfferShowcase } from '@/components/offer-showcase'
+import { getTopBoostedOffers } from '@/lib/boost-utils'
 
 export const revalidate = 0 // Atualiza sempre que entrar (sem cache velho)
 
@@ -20,7 +20,30 @@ export const metadata: Metadata = {
 
 export default async function ShowcasePage() {
   const supabase = await createClient()
+  
+  // Fetch offers
   const { data: offers } = await supabase.from('offers').select('*').order('created_at', { ascending: false })
+  
+  // Fetch boosted offers for reordering
+  const boostedOffers = await getTopBoostedOffers(supabase, 100)
+  const boostedOfferIds = new Set(boostedOffers.map(b => b.offerId))
+  
+  // Fetch boost info for all offers
+  const { data: allBoosts } = await supabase
+    .from('boosts')
+    .select('offer_id, expires_at, status')
+    .eq('status', 'completed')
+    .gt('expires_at', new Date().toISOString())
+  
+  const boostMap = new Map(
+    allBoosts?.map(b => [b.offer_id, b.expires_at]) || []
+  )
+  
+  // Reorder offers: boosted first, then regular
+  const sortedOffers = [
+    ...(offers?.filter(o => boostedOfferIds.has(o.id)) || []),
+    ...(offers?.filter(o => !boostedOfferIds.has(o.id)) || [])
+  ]
 
   // JSON-LD para GEO (AI Citation Readiness)
   const jsonLd = {
@@ -28,7 +51,7 @@ export default async function ShowcasePage() {
     '@type': 'LocalBusiness',
     name: 'Mercadinho Connect',
     description: 'Ofertas e promoções diárias do mercadinho do bairro',
-    offers: offers?.map(offer => ({
+    offers: sortedOffers?.map(offer => ({
       '@type': 'Offer',
       name: offer.title,
       price: offer.price,
@@ -56,33 +79,18 @@ export default async function ShowcasePage() {
       <main className="p-4 space-y-4 max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-slate-800 mb-4">🔥 Promoções Imperdíveis</h2>
         
-        {offers?.length === 0 ? (
+        {sortedOffers?.length === 0 ? (
           <div className="text-center py-10 text-gray-500">
             <p>Nenhuma oferta cadastrada ainda. 😴</p>
             <Link href="/admin" className="text-blue-500 underline mt-2 block">Sou o dono (Cadastrar)</Link>
           </div>
         ) : (
-          offers?.map((offer) => (
-            <Card key={offer.id} className="overflow-hidden border-none shadow-lg">
-              <div className="relative h-64 w-full bg-gray-200">
-                {offer.photo_url && (
-                  <Image 
-                    src={offer.photo_url} 
-                    alt={offer.title} 
-                    fill 
-                    className="object-cover"
-                  />
-                )}
-                {/* Preço "colado" na foto */}
-                <div className="absolute bottom-0 left-0 bg-yellow-400 px-4 py-2 rounded-tr-xl shadow-sm">
-                  <span className="text-xs font-bold text-yellow-900 uppercase block">Por apenas</span>
-                  <span className="text-2xl font-black text-red-700">R$ {offer.price}</span>
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h2 className="text-lg font-bold text-slate-800 leading-tight">{offer.title}</h2>
-              </CardContent>
-            </Card>
+          sortedOffers?.map((offer) => (
+            <OfferShowcase 
+              key={offer.id} 
+              offer={offer}
+              boostExpiration={boostMap.get(offer.id) || null}
+            />
           ))
         )}
       </main>

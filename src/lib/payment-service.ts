@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Payment Service - Abstraction layer for Stripe & Mercado Pago
  * Handles Payment Intent/Preference creation, webhook validation, and transaction logging
@@ -5,6 +7,7 @@
 
 import Stripe from 'stripe'
 import { MercadoPagoConfig, Preference } from 'mercadopago'
+import crypto from 'crypto'
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -44,7 +47,7 @@ export interface PaymentWebhookPayload {
  */
 export async function createPayment(
   request: PaymentCreateRequest,
-  supabaseClient: any
+  supabaseClient: any // TODO: Replace with proper SupabaseClient type
 ): Promise<PaymentCreateResponse> {
   const { offerId, userId, amount, paymentMethod, returnUrl } = request
 
@@ -54,8 +57,7 @@ export async function createPayment(
         offerId,
         userId,
         amount,
-        supabaseClient,
-        returnUrl
+        supabaseClient
       )
     } else if (paymentMethod === 'mercado_pago') {
       return await createMercadoPagoPayment(
@@ -81,8 +83,7 @@ async function createStripePayment(
   offerId: string,
   userId: string,
   amount: number,
-  supabaseClient: any,
-  returnUrl?: string
+  supabaseClient: any
 ): Promise<PaymentCreateResponse> {
   // Create Payment Intent
   const paymentIntent = await stripe.paymentIntents.create({
@@ -307,7 +308,6 @@ export function validateMercadoPagoSignature(
 
   try {
     // HMAC-SHA256 validation per Mercado Pago webhook security docs
-    const crypto = require('crypto')
     const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET
 
     if (!secret) {

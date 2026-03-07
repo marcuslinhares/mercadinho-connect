@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Boost utilities - Helper functions for boost queries and validations
  */
@@ -216,7 +218,7 @@ export async function getTopBoostedOffers(
     return []
   }
 
-  return (data || []).map((item) => ({
+  return (data || []).map((item: any) => ({
     offerId: item.offer_id,
     expiresAt: item.expires_at,
   }))
