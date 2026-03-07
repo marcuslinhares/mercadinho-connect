@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { redirect, revalidatePath } from 'next/navigation'
 
 export async function createOffer(formData: FormData) {
   const supabase = await createClient()
@@ -47,6 +47,81 @@ export async function createOffer(formData: FormData) {
     throw new Error('Não salvou no banco!')
   }
 
+  // Revalidate pages
+  revalidatePath('/admin')
+  revalidatePath('/')
+  
   // Volta pra página e atualiza
   redirect('/admin')
+}
+
+export async function deleteOffer(offerId: string) {
+  const supabase = await createClient()
+
+  // 1. Get offer to find photo filename
+  const { data: offer, error: fetchError } = await supabase
+    .from('offers')
+    .select('photo_url')
+    .eq('id', offerId)
+    .single()
+
+  if (fetchError || !offer) {
+    throw new Error('Oferta não encontrada!')
+  }
+
+  // 2. Delete from storage if has photo
+  if (offer.photo_url) {
+    const filename = offer.photo_url.split('/').pop()
+    if (filename) {
+      await supabase.storage
+        .from('offers')
+        .remove([filename])
+    }
+  }
+
+  // 3. Delete from database
+  const { error: dbError } = await supabase
+    .from('offers')
+    .delete()
+    .eq('id', offerId)
+
+  if (dbError) {
+    throw new Error('Não conseguiu deletar!')
+  }
+
+  // Revalidate pages
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
+export async function toggleOfferActive(offerId: string, active: boolean) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('offers')
+    .update({ active: !active })
+    .eq('id', offerId)
+
+  if (error) {
+    throw new Error('Não conseguiu atualizar!')
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
+export async function updateOffer(offerId: string, title: string, price: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('offers')
+    .update({ title, price })
+    .eq('id', offerId)
+
+  if (error) {
+    throw new Error('Não conseguiu atualizar!')
+  }
+
+  revalidatePath('/admin')
+  revalidatePath('/')
 }
