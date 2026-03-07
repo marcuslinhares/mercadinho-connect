@@ -12,12 +12,15 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    // Get raw body for signature validation
+    const body = await request.text()
+    const parsedBody = JSON.parse(body)
+
+    // Get headers for signature validation
+    const headers = Object.fromEntries(request.headers.entries())
 
     // Validate signature
-    const isValid = validateMercadoPagoSignature(
-      Object.fromEntries(request.headers.entries())
-    )
+    const isValid = validateMercadoPagoSignature(headers, body)
 
     if (!isValid) {
       return NextResponse.json(
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
     const supabaseClient = await createClient()
 
     // Handle event
-    await handleMercadoPagoWebhook(body, supabaseClient)
+    await handleMercadoPagoWebhook(parsedBody, supabaseClient)
 
     return NextResponse.json({ success: true }, { status: 200 })
   } catch (error) {

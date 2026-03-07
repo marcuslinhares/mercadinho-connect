@@ -20,7 +20,7 @@ CREATE TABLE boosts (
   mercado_pago_payment_id VARCHAR(255),
   
   -- Error tracking
-  error_message TEXT,
+  error_message TEXT CHECK (length(error_message) <= 500),
   retry_count INT DEFAULT 0,
   
   CONSTRAINT boosts_offer_id_fk FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE,

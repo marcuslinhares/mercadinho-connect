@@ -290,18 +290,47 @@ export function validateStripeSignature(
 /**
  * Validate webhook signature (Mercado Pago)
  */
-export function validateMercadoPagoSignature(params: Record<string, any>): boolean {
+export function validateMercadoPagoSignature(
+  params: Record<string, any>,
+  body: string
+): boolean {
   // Mercado Pago signature validation
-  // Implement according to: https://developers.mercadopago.com/en/docs/webhooks/additional-info/ipn
+  // Per: https://developers.mercadopago.com/en/docs/webhooks/additional-info/ipn
+  
   const signature = params['x-signature']
   const requestId = params['x-request-id']
+  const timestamp = params['x-timestamp']
 
-  if (!signature || !requestId) {
+  if (!signature || !requestId || !timestamp) {
     return false
   }
 
-  // Verify signature (implementation depends on latest Mercado Pago docs)
-  return true // Placeholder
+  try {
+    // HMAC-SHA256 validation per Mercado Pago webhook security docs
+    const crypto = require('crypto')
+    const secret = process.env.MERCADO_PAGO_WEBHOOK_SECRET
+
+    if (!secret) {
+      console.error('MERCADO_PAGO_WEBHOOK_SECRET not configured')
+      return false
+    }
+
+    // Concatenate requestId:timestamp:body for signature verification
+    const concatenated = `${requestId}:${timestamp}:${body}`
+    const expectedSig = crypto
+      .createHmac('sha256', secret)
+      .update(concatenated)
+      .digest('hex')
+
+    // Use timing-safe comparison to prevent timing attacks
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSig)
+    )
+  } catch (error) {
+    console.error('MP signature validation error:', error)
+    return false
+  }
 }
 
 /**
