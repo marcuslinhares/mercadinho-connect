@@ -10,7 +10,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_TAG: staging
   VPS_HOST: 204.12.199.113
-  VPS_USER: root
+  VPS_USER: administrator
   VPS_DEPLOY_PATH: /opt/mercadinho-connect
   CONTAINER_NAME: mercadinho-connect-staging
   CONTAINER_PORT: 3000
