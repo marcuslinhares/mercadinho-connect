@@ -195,7 +195,7 @@ export async function markExpiredBoosts(
     return 0
   }
 
-  return data?.length || 0
+  return Array.isArray(data) ? (data as any[]).length : 0
 }
 
 /**

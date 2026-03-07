@@ -11,7 +11,7 @@ import crypto from 'crypto'
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20',
+  apiVersion: '2024-04-10',
 })
 
 // Initialize Mercado Pago
@@ -92,7 +92,6 @@ async function createStripePayment(
     metadata: {
       offerId,
       userId,
-      boostId: undefined, // Will be set after boost is created
     },
     automatic_payment_methods: {
       enabled: true,
