@@ -31,6 +31,7 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
     // Trigger a rerender by changing the key
     setRefreshKey(prev => prev + 1)
     // In a real app, you might also trigger a full page reload or use real-time updates via Supabase
+    window.location.reload()
   }
 
   const isBoosted = boostExpiration !== null
