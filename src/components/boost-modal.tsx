@@ -164,6 +164,7 @@ export function BoostModal({
             {/* Stripe Option */}
             <button
               onClick={() => setPaymentMethod('stripe')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPaymentMethod('stripe') }}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                 paymentMethod === 'stripe'
                   ? 'border-blue-600 bg-blue-50'
@@ -194,6 +195,7 @@ export function BoostModal({
             {/* Mercado Pago Option */}
             <button
               onClick={() => setPaymentMethod('mercado_pago')}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setPaymentMethod('mercado_pago') }}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                 paymentMethod === 'mercado_pago'
                   ? 'border-yellow-500 bg-yellow-50'

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { BoostModal } from './boost-modal'
 import { BoostedBadge } from './boosted-badge'
+import { t } from '@/lib/i18n'
 
 interface Offer {
   id: string
@@ -57,7 +58,7 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
           
           {/* Preço colado na foto */}
           <div className="absolute bottom-0 left-0 bg-yellow-400 px-4 py-2 rounded-tr-xl shadow-sm">
-            <span className="text-xs font-bold text-yellow-900 uppercase block">Por apenas</span>
+            <span className="text-xs font-bold text-yellow-900 uppercase block">{t('offer.price_label')}</span>
             <span className="text-2xl font-black text-red-700">R$ {offer.price}</span>
           </div>
 
@@ -86,6 +87,7 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
           <Button
             data-testid="boost-button"
             onClick={() => setIsBoostModalOpen(true)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsBoostModalOpen(true) }}
             disabled={isBoosted}
             className={`flex-shrink-0 h-auto px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${
               isBoosted
