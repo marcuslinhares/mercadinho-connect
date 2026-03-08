@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { test, expect } from '@playwright/test'
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
