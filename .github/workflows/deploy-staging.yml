@@ -135,6 +135,19 @@ jobs:
           echo "🌐 Acesse em: https://dev-mercadinho.marcuslinhares.com"
           echo "📊 Monitorar em tempo real: docker logs -f ${{ env.CONTAINER_NAME }}"
 
+      - name: 🤖 Invoke QA via OpenClaw Webhook
+        run: |
+          echo "Disparando QA Agent no OpenClaw para reteste..."
+          curl -X POST https://openclaw.marcuslinhares.com/hooks/agent \
+            -H 'Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "message": "Deploy concluído no staging! Por favor, realize os testes do Mercadinho Boost feature no ambiente de staging: https://dev-mercadinho.marcuslinhares.com. Verifique se o app está respondendo e se a feature funciona.",
+              "name": "QA Retest (Staging Deploy)",
+              "agentId": "qa",
+              "wakeMode": "now"
+            }'
+
   notify-on-failure:
     needs: deploy-to-vps
     runs-on: ubuntu-latest
