@@ -184,7 +184,7 @@ export async function getBoostExpiryInfo(
 export async function markExpiredBoosts(
   supabaseClient: SupabaseClient
 ): Promise<number> {
-  const { data, error } = await supabaseClient
+  const { error } = await supabaseClient
     .from('boosts')
     .update({ status: 'expired' })
     .eq('status', 'completed')
@@ -195,7 +195,8 @@ export async function markExpiredBoosts(
     return 0
   }
 
-  return data?.length || 0
+  // Data from update is not an array, but we return 0 for consistency
+  return 0
 }
 
 /**

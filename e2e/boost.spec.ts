@@ -1,9 +1,12 @@
-import { test, expect } from '@playwright/test'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { test, expect, Page } from '@playwright/test'
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
+import { test, expect, Page } from '@playwright/test'
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'
 test.describe('US-001: Offer Boost Feature', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page }: { page: Page }) => {
     // Login or setup auth before each test
     await page.goto(`${BASE_URL}/login`)
     // Implement actual login based on your auth system
@@ -16,7 +19,7 @@ test.describe('US-001: Offer Boost Feature', () => {
   test.describe('Happy Path - Stripe', () => {
     test('User clicks Boost button and completes Stripe payment', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Navigate to offers page
       await page.goto(`${BASE_URL}/offers`)
 
@@ -59,13 +62,13 @@ test.describe('US-001: Offer Boost Feature', () => {
       await expect(boostedBadge.locator('text=Destacado')).toBeVisible()
     })
 
-    test('Boosted offer appears at top of list', async ({ page }) => {
+    test('Boosted offer appears at top of list', async ({ page }: { page: Page }) => {
       // 1. Navigate to offers
       await page.goto(`${BASE_URL}/offers`)
 
       // 2. Get list of offers before boost
       const offersBefore = await page.locator('[data-testid="offer-card"]').all()
-      const firstOfferIdBefore = await offersBefore[0].getAttribute(
+      const firstOfferIdBefore = await (offersBefore[0] as any).getAttribute(
         'data-offer-id'
       )
 
@@ -85,7 +88,7 @@ test.describe('US-001: Offer Boost Feature', () => {
 
       // 5. Verify boosted offer is now first
       const offersAfter = await page.locator('[data-testid="offer-card"]').all()
-      const firstOfferIdAfter = await offersAfter[0].getAttribute(
+      const firstOfferIdAfter = await (offersAfter[0] as any).getAttribute(
         'data-offer-id'
       )
 
@@ -95,7 +98,7 @@ test.describe('US-001: Offer Boost Feature', () => {
 
     test('Countdown shows days remaining on boosted badge', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Go to offers where we have a boosted offer
       await page.goto(`${BASE_URL}/offers`)
 
@@ -117,7 +120,7 @@ test.describe('US-001: Offer Boost Feature', () => {
   test.describe('Happy Path - Mercado Pago', () => {
     test('User clicks Boost button and completes Mercado Pago payment', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Navigate to offers page
       await page.goto(`${BASE_URL}/offers`)
 
@@ -151,7 +154,7 @@ test.describe('US-001: Offer Boost Feature', () => {
   })
 
   test.describe('Error Scenarios', () => {
-    test('Cancel payment closes modal without charge', async ({ page }) => {
+    test('Cancel payment closes modal without charge', async ({ page }: { page: Page }) => {
       // 1. Navigate to offers
       await page.goto(`${BASE_URL}/offers`)
 
@@ -177,7 +180,7 @@ test.describe('US-001: Offer Boost Feature', () => {
       await expect(boostedBadge).not.toBeVisible()
     })
 
-    test('Payment failure shows error message', async ({ page }) => {
+    test('Payment failure shows error message', async ({ page }: { page: Page }) => {
       // 1. Navigate to offers
       await page.goto(`${BASE_URL}/offers`)
 
@@ -201,7 +204,7 @@ test.describe('US-001: Offer Boost Feature', () => {
       await expect(errorMessage.locator('text=Payment failed')).toBeVisible()
     })
 
-    test('Unauthenticated user redirected to login', async ({ page }) => {
+    test('Unauthenticated user redirected to login', async ({ page }: { page: Page }) => {
       // 1. Navigate directly to offers
       await page.goto(`${BASE_URL}/offers`)
 
@@ -217,7 +220,7 @@ test.describe('US-001: Offer Boost Feature', () => {
       expect(page.url()).toContain('/login')
     })
 
-    test('User cannot boost same offer twice', async ({ page }) => {
+    test('User cannot boost same offer twice', async ({ page }: { page: Page }) => {
       // 1. Boost an offer (full flow)
       await page.goto(`${BASE_URL}/offers`)
       // ... complete boost payment ...
@@ -239,14 +242,14 @@ test.describe('US-001: Offer Boost Feature', () => {
   })
 
   test.describe('Edge Cases', () => {
-    test('Boost expires after 7 days (mocked time)', async ({ page }) => {
+    test('Boost expires after 7 days (mocked time)', async ({ page }: { page: Page }) => {
       // 1. Create a boost
       // ... complete boost creation ...
 
       // 2. Mock time to 7 days + 1 second later
       // (Would need to use Playwright's clock or server-side manipulation)
       await page.context().addInitScript(() => {
-        window.currentTime = new Date(
+        (window as unknown as any).currentTime = new Date(
           Date.now() + 7 * 24 * 60 * 60 * 1000 + 1000
         )
       })
@@ -263,7 +266,7 @@ test.describe('US-001: Offer Boost Feature', () => {
 
     test('Multiple simultaneous boost attempts prevented', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Open boost modal
       await page.goto(`${BASE_URL}/offers`)
       const boostButton = page.locator('[data-testid="boost-button"]').first()
@@ -288,7 +291,7 @@ test.describe('US-001: Offer Boost Feature', () => {
   test.describe('Integration with Frontend Components', () => {
     test('Boost button state updates on component mount', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Navigate to offers
       await page.goto(`${BASE_URL}/offers`)
 
@@ -314,7 +317,7 @@ test.describe('US-001: Offer Boost Feature', () => {
 
     test('List reordering happens in real-time or on refresh', async ({
       page,
-    }) => {
+    }: { page: Page }) => {
       // 1. Record initial order
       const initialOrder = await page
         .locator('[data-testid="offer-card"]')
