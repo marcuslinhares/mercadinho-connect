@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎨 Mercadinho Connect Design System v1.0.0
 
-## Getting Started
+Professional, production-ready design system for Mercadinho ecommerce platform.
 
-First, run the development server:
+## Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install @mercadinho/design-system
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quick Start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Import CSS Variables
+```tsx
+import '@mercadinho/design-system/src/styles/design-system.css';
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. Use Components
+```tsx
+import { Button, Card, Input, Badge } from '@mercadinho/design-system';
 
-## Learn More
+export default function App() {
+  return (
+    <Card>
+      <h2>Welcome</h2>
+      <Input label="Email" type="email" required />
+      <Button variant="primary">Submit</Button>
+      <Badge variant="success">Active</Badge>
+    </Card>
+  );
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+✅ **Colors** - Professional palette (iOS Blue primary, iOS Green secondary)  
+✅ **Typography** - 6-step font scale with 3 weights  
+✅ **Spacing** - 4px base unit system  
+✅ **Components** - 8 core components with full variants  
+✅ **Dark Mode** - Full color override support  
+✅ **Accessibility** - WCAG AA compliant (4.5:1 contrast)  
+✅ **TypeScript** - Strict types, zero `any`  
+✅ **Responsive** - Mobile-first design  
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Components
 
-## Deploy on Vercel
+- **Button** - Primary, secondary, tertiary, outline, ghost, danger (sizes: sm, md, lg)
+- **Card** - Composable with Header, Content, Footer
+- **Input** - Text input with label, error, helper text
+- **Badge** - Status indicators (5 variants)
+- **Skeleton** - Loading placeholder
+- **Spinner** - Loading animation
+- **Modal** - Dialog with 3 sizes
+- **BottomNavigation** - Mobile navigation template
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## CSS Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+All components use CSS custom properties for theming:
+
+```css
+:root {
+  --color-primary: #007aff;
+  --color-secondary: #34c759;
+  --font-size-base: 1rem;
+  --space-4: 1rem;
+  /* 80+ more variables */
+}
+```
+
+## Dark Mode
+
+Enable by adding `data-theme="dark"` to `<html>`:
+
+```tsx
+<html data-theme="dark">
+  <body>{/* Your app */}</body>
+</html>
+```
+
+## Storybook
+
+View all components interactively:
+
+```bash
+npm run storybook
+```
+
+## Design Principles
+
+1. **Mobile First** - Design for smallest screen, scale up
+2. **Performance** - GPU-accelerated animations
+3. **Accessibility** - WCAG AA minimum
+4. **Simplicity** - CSS variables for easy theming
+5. **Consistency** - All tokens derived from base system
+
+## Documentation
+
+See `DESIGN_SYSTEM.md` for complete design token reference.
+
+## License
+
+MIT
+
+---
+
+**Built for Mercadinho Connect** 🚀  
+Created: 2026-03-10  
+Version: 1.0.0

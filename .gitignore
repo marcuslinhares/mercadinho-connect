@@ -50,3 +50,18 @@ next-env.d.ts
 
 # OS
 Thumbs.db
+
+# Development env files (contain secrets)
+.env.local.dev
+.env.local
+
+# Test/QA artifacts (not needed in repo)
+QA*.txt
+playwright-output.txt
+playwright-report/
+playwright.config.ts
+test-results/
+test-results.json
+test-boost-reload.js
+test-in-docker.sh
+setup-dev-environment.sh
