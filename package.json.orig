@@ -1,0 +1,43 @@
+{
+  "name": "@mercadinho/design-system",
+  "version": "1.0.0",
+  "description": "Mercadinho Connect Professional Design System - WCAG AA compliant components library",
+  "main": "src/components/ComponentLibrary.tsx",
+  "types": "src/components/ComponentLibrary.tsx",
+  "files": [
+    "src/",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "keywords": [
+    "design-system",
+    "react",
+    "components",
+    "mercadinho",
+    "ecommerce",
+    "typescript",
+    "accessible"
+  ],
+  "author": "Mercadinho Connect Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercadinho/design-system"
+  },
+  "bugs": {
+    "url": "https://github.com/mercadinho/design-system/issues"
+  },
+  "homepage": "https://mercadinho.design"
+}
