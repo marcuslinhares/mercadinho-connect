@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import clsx from 'clsx'
+import { t } from '@/lib/i18n'
 
 export interface TabProps {
   href: string
@@ -74,23 +75,23 @@ export function BottomNavigationBar() {
   const tabs: TabProps[] = [
     {
       href: '/',
-      label: 'Home',
+      label: t('navigation.home'),
       icon: <span className="text-lg">🏠</span>,
     },
     {
       href: '/offers',
-      label: 'Offers',
+      label: t('navigation.offers'),
       icon: <span className="text-lg">🏷️</span>,
     },
     {
       href: '/favorites',
-      label: 'Favorites',
+      label: t('navigation.favorites'),
       icon: <span className="text-lg">❤️</span>,
       // badge: 3, // TODO: Wire up with favorites count
     },
     {
       href: '/profile',
-      label: 'Profile',
+      label: t('navigation.profile'),
       icon: <span className="text-lg">👤</span>,
     },
   ]

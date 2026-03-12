@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { t } from '@/lib/i18n'
 
 interface BoostedBadgeProps {
   expiresAt: string | Date
@@ -56,13 +57,13 @@ export function BoostedBadge({
       className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 px-3 py-1 rounded-full font-bold text-sm shadow-md border border-yellow-600 border-opacity-30"
     >
       <span className="inline-block mr-1">⭐</span>
-      <span>Destacado</span>
+      <span>{t('badge.boosted')}</span>
       {showCountdown && (
         <span
           data-testid="boost-countdown"
           className="ml-2 text-xs font-semibold opacity-90"
         >
-          ({daysRemaining} {daysRemaining === 1 ? 'dia' : 'dias'} restantes)
+          ({daysRemaining} {daysRemaining === 1 ? t('badge.dayRemaining') : t('badge.daysRemaining')})
         </span>
       )}
     </div>
