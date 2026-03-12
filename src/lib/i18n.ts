@@ -12,7 +12,7 @@ export function useTranslations(namespace: TranslationKeys) {
 
 export function t(key: string): string {
   const keys = key.split('.')
-  let value: any = translations['pt-BR']
+  let value: unknown = translations['pt-BR']
   
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {
