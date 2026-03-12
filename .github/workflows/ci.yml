@@ -41,15 +41,70 @@ jobs:
       # O foco aqui é Segurança, Lint e Build
       run: python3 .agent/scripts/verify_all.py . --url http://localhost:3000 --no-e2e --stop-on-fail
 
-    - name: 🚨 Auto-Create Fix Card on CI Failure
+    - name: 🚨 Auto-Create Fix Card on CI Failure (Git Commit)
       if: failure() && github.event_name == 'pull_request'
       run: |
-        cd ${{ github.workspace }}
-        bash .agent/scripts/create-fix-card.sh \
-          "${{ github.event.pull_request.head.ref }}" \
-          "${{ github.event.pull_request.number }}" \
-          "${{ github.run_id }}" \
-          "${{ github.repository }}"
+        # Setup git config for automated commits
+        git config user.email "bot@openclaw.ai"
+        git config user.name "CI Fix Card Bot"
+        
+        BRANCH="${{ github.event.pull_request.head.ref }}"
+        PR_NUMBER="${{ github.event.pull_request.number }}"
+        RUN_ID="${{ github.run_id }}"
+        REPO="${{ github.repository }}"
+        
+        # Determine team based on branch name
+        if echo "$BRANCH" | grep -q "US-1"; then
+          TEAM="Frontend"
+        elif echo "$BRANCH" | grep -q "US-2"; then
+          TEAM="Backend"
+        else
+          TEAM="Dev"
+        fi
+        
+        TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+        LOGS_URL="https://github.com/${REPO}/actions/runs/${RUN_ID}"
+        
+        # Create card content
+        CARD=$(cat <<EOF
+
+### [FIX-PR-${PR_NUMBER}] ${TEAM} CI Fix Required
+- **PR**: #${PR_NUMBER}
+- **Branch**: ${BRANCH}
+- **Team**: ${TEAM}
+- **Action**: Review logs → Fix code → git push
+- **Logs**: ${LOGS_URL}
+- **Status**: OPEN
+- **Created**: ${TIMESTAMP}
+EOF
+)
+        
+        # Append to INBOX_DEVS.md (in root directory)
+        cd ${{ github.workspace }}/..
+        
+        # Ensure file exists
+        if [ ! -f INBOX_DEVS.md ]; then
+          mkdir -p .
+          cat > INBOX_DEVS.md << 'HEADER'
+# 📋 INBOX_DEVS.md — Development Tasks
+
+**Last Updated**: 2026-03-12 10:54 UTC
+
+## 🎯 Active Cards (OPEN)
+
+HEADER
+        fi
+        
+        # Append card
+        echo "$CARD" >> INBOX_DEVS.md
+        
+        # Commit and push to develop
+        git add INBOX_DEVS.md
+        git commit -m "card(ci-fix): auto-created PR #${PR_NUMBER} fix card [skip ci]" || echo "No changes to commit"
+        git push origin develop || echo "Failed to push (may already be pushed)"
+        
+        echo "✅ Fix card added to INBOX_DEVS.md"
+        echo "$CARD"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
