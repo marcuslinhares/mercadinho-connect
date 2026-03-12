@@ -3,9 +3,9 @@ name: CI - Antigravity Guard
 on:
   workflow_dispatch: # Permite disparo manual
   push:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "develop" ]
 
 jobs:
   quality-gate:
