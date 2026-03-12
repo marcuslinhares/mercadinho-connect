@@ -110,3 +110,4 @@ export default async function ShowcasePage() {
     </div>
   )
 }
+// Teste intencional para demonstrar card creation
