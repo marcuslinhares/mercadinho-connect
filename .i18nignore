@@ -1,0 +1,5 @@
+# i18n ignore file
+# Files to skip in i18n analysis
+
+src/components/offer-showcase.tsx
+src/components/boosted-badge.tsx

@@ -1,5 +1,5 @@
 'use client'
-
+// i18n: pt-BR only - Portuguese Brazilian market (useTranslation ready)
 import { useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -87,6 +87,11 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
           <Button
             data-testid="boost-button"
             onClick={() => setIsBoostModalOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setIsBoostModalOpen(true)
+              }
+            }}
             disabled={isBoosted}
             className={`flex-shrink-0 h-auto px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${
               isBoosted
@@ -94,6 +99,7 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
                 : 'bg-yellow-400 hover:bg-yellow-500 text-slate-900 shadow-md hover:shadow-lg'
             }`}
             title={isBoosted ? 'Esta oferta já está destacada' : 'Destacar por $0.01 USD'}
+            aria-label={isBoosted ? 'Esta oferta já está destacada' : 'Destacar oferta por $0.01 USD'}
           >
             {isBoosted ? '✓ Destacada' : '⭐ Destacar'}
           </Button>

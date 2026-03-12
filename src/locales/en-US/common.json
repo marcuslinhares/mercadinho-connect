@@ -1,0 +1,13 @@
+{
+  "offer": {
+    "byPrice": "Only",
+    "currency": "USD",
+    "boostLabel": "Highlighted",
+    "boostButtonLabel": "Highlight"
+  },
+  "boost": {
+    "badge": "Highlighted",
+    "expiresIn": "Expires in",
+    "expired": "Expired"
+  }
+}

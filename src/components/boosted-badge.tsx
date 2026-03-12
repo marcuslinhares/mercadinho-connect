@@ -1,5 +1,5 @@
 'use client'
-
+// i18n: pt-BR only - Portuguese Brazilian market (useTranslation ready)
 import { useEffect, useState } from 'react'
 
 interface BoostedBadgeProps {

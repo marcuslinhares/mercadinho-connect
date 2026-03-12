@@ -47,7 +47,12 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} bg-slate-50 antialiased`}>
-        {children}
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-0 focus:left-0 focus:z-50 focus:p-4 focus:bg-blue-600 focus:text-white">
+          Pular para conteúdo principal
+        </a>
+        <main id="main-content">
+          {children}
+        </main>
       </body>
     </html>
   );
