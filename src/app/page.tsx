@@ -76,7 +76,7 @@ export default async function ShowcasePage() {
       </header>
 
       {/* Lista de Ofertas */}
-      <main className="p-4 space-y-4 max-w-md mx-auto">
+      <main id="main-content" className="p-4 space-y-4 max-w-md mx-auto">
         <h2 className="text-2xl font-bold text-slate-800 mb-4">🔥 Promoções Imperdíveis</h2>
         
         {sortedOffers?.length === 0 ? (
