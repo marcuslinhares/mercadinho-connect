@@ -41,20 +41,17 @@ jobs:
       # O foco aqui é Segurança, Lint e Build
       run: python3 .agent/scripts/verify_all.py . --url http://localhost:3000 --no-e2e --stop-on-fail
 
-    - name: 🚨 Notify on CI Failure (CEO)
-      if: failure()
+    - name: 🚨 Auto-Create Fix Card on CI Failure
+      if: failure() && github.event_name == 'pull_request'
       run: |
-        echo "Notificando CEO sobre falha de CI..."
-        curl -X POST "https://openclaw.marcuslinhares.com/hooks/agent" \
-          -H "Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "message": "🚨 **CI FAILURE DETECTED**\n\n**Repo**: ${{ github.repository }}\n**Branch**: ${{ github.ref_name }}\n**Run ID**: ${{ github.run_id }}\n**Logs**: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\n**CRITICAL RULE**: All fixes MUST go through Pull Request workflow:\n1. Create a fix branch from develop\n2. Commit fixes to the fix branch\n3. Open a Pull Request\n4. CI runs on PR (not on develop directly)\n5. Code review + merge\n\n⚠️ DO NOT commit directly to develop!",
-            "name": "CI-Failure-Alert",
-            "channel": "telegram",
-            "to": "7727702465",
-            "wakeMode": "now"
-          }'
+        cd ${{ github.workspace }}
+        bash .agent/scripts/create-fix-card.sh \
+          "${{ github.event.pull_request.head.ref }}" \
+          "${{ github.event.pull_request.number }}" \
+          "${{ github.run_id }}" \
+          "${{ github.repository }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: ✅ Notify PR Merger on Success (if PR)
       if: success() && github.event_name == 'pull_request'
