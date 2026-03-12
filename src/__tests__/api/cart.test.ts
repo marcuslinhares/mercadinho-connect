@@ -7,6 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createClient } from '@/lib/supabase/server'
+import type { SupabaseClient } from '@supabase/supabase-js'
 
 // Mock Supabase client
 vi.mock('@/lib/supabase/server', () => ({
@@ -14,7 +15,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 describe('Cart API Endpoints', () => {
-  let mockSupabaseClient: any
+  let mockSupabaseClient: Partial<SupabaseClient>
 
   beforeEach(() => {
     mockSupabaseClient = {
@@ -138,25 +139,6 @@ describe('Cart API Endpoints', () => {
         data: { user: { id: 'user-123' } },
         error: null,
       })
-
-      const mockCartData = {
-        id: 5,
-        user_id: 'user-123',
-        items: [
-          {
-            id: 123,
-            product_id: 42,
-            quantity: 2,
-            product: {
-              id: 42,
-              name: 'Organic Milk',
-              price: 4.99,
-              image_url: 'https://example.com/milk.jpg',
-              stock: 50,
-            },
-          },
-        ],
-      }
 
       // Expected totals
       const subtotal = 4.99 * 2 // 9.98

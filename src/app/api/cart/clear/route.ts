@@ -3,10 +3,10 @@
  * Clear the entire shopping cart
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE() {
   try {
     // 1. Authenticate user
     const supabaseClient = await createClient()
