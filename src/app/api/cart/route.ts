@@ -15,6 +15,37 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+type Product = {
+  id: number
+  name: string
+  price: number
+  image_url: string
+  stock: number
+}
+
+type Cart = {
+  id: number
+}
+
+type CartItem = {
+  id: number
+  product_id: number
+  quantity: number
+  products: Product
+}
+
+type CartItemBasic = {
+  id: number
+  quantity: number
+}
+
+type CartItemFromDB = {
+  id: number
+  product_id: number
+  quantity: number
+  products: Product[] | Product
+}
+
 export async function GET() {
   try {
     // 1. Authenticate user
@@ -87,15 +118,18 @@ export async function GET() {
     }
 
     // 4. Calculate totals
-    const items = cartItems.map((item) => ({
-      id: item.id,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      product: item.products,
-    }))
+    const items = ((cartItems as unknown) as CartItemFromDB[]).map((item) => {
+      const product = Array.isArray(item.products) ? item.products[0] : item.products
+      return {
+        id: item.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        product,
+      }
+    })
 
     const subtotal = items.reduce(
-      (sum, item) => sum + item.product.price * item.quantity,
+      (sum: number, item) => sum + item.product.price * item.quantity,
       0
     )
 
@@ -170,7 +204,7 @@ export async function POST(request: NextRequest) {
       .from('products')
       .select('id, name, price, image_url, stock')
       .eq('id', product_id)
-      .single()
+      .single() as { data: Product | null; error: unknown }
 
     if (productError || !product) {
       return NextResponse.json(
@@ -190,19 +224,21 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Get or create user's cart
-    let cart = await supabaseClient
+    const cartResult = await supabaseClient
       .from('carts')
       .select('id')
       .eq('user_id', user.id)
-      .single()
+      .single() as { data: Cart | null; error: unknown }
 
-    if (cart.error) {
+    let cart: Cart | null = cartResult.data
+
+    if (cartResult.error) {
       // Cart doesn't exist, create it
       const { data: newCart, error: createError } = await supabaseClient
         .from('carts')
         .insert({ user_id: user.id })
         .select('id')
-        .single()
+        .single() as { data: Cart | null; error: unknown }
 
       if (createError || !newCart) {
         return NextResponse.json(
@@ -211,10 +247,17 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      cart = { data: newCart }
+      cart = newCart
     }
 
-    const cartId = cart.data!.id
+    if (!cart) {
+      return NextResponse.json(
+        { error: 'Failed to get or create cart' },
+        { status: 500 }
+      )
+    }
+
+    const cartId = cart.id
 
     // 5. Add or update cart item
     const { data: existingItem } = await supabaseClient
@@ -222,9 +265,9 @@ export async function POST(request: NextRequest) {
       .select('id, quantity')
       .eq('cart_id', cartId)
       .eq('product_id', product_id)
-      .single()
+      .single() as { data: CartItemBasic | null; error: unknown }
 
-    let cartItem
+    let cartItem: CartItem | null = null
 
     if (existingItem) {
       // Update existing item quantity
@@ -246,7 +289,7 @@ export async function POST(request: NextRequest) {
         .update({ quantity: newQuantity })
         .eq('id', existingItem.id)
         .select()
-        .single()
+        .single() as { data: CartItem | null; error: unknown }
 
       if (updateError) {
         return NextResponse.json(
@@ -266,7 +309,7 @@ export async function POST(request: NextRequest) {
           quantity,
         })
         .select()
-        .single()
+        .single() as { data: CartItem | null; error: unknown }
 
       if (insertError) {
         return NextResponse.json(
@@ -278,6 +321,13 @@ export async function POST(request: NextRequest) {
       cartItem = newItem
     }
 
+    if (!cartItem) {
+      return NextResponse.json(
+        { error: 'Failed to process cart item' },
+        { status: 500 }
+      )
+    }
+
     // 6. Return response
     return NextResponse.json(
       {
@@ -285,7 +335,7 @@ export async function POST(request: NextRequest) {
         message: 'Product added to cart',
         cart_item: {
           id: cartItem.id,
-          cart_id: cartItem.cart_id,
+          cart_id: cartId,
           product_id: cartItem.product_id,
           quantity: cartItem.quantity,
           product: {
