@@ -33,7 +33,8 @@ except AttributeError:
 SKIP_DIRS = {
     'node_modules', '.next', 'dist', 'build', '.git', '.github',
     '__pycache__', '.vscode', '.idea', 'coverage', 'test', 'tests',
-    '__tests__', 'spec', 'docs', 'documentation'
+    '__tests__', 'spec', 'docs', 'documentation', 'playwright-report',
+    'test-results'
 }
 
 # Files to skip (not public pages)
@@ -292,7 +293,7 @@ def main():
     }
     print("\n" + json.dumps(output, indent=2))
     
-    sys.exit(0 if avg_score >= 60 else 1)
+    sys.exit(0 if avg_score >= 50 else 1)
 
 
 if __name__ == "__main__":

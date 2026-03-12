@@ -1,0 +1,24 @@
+{
+  "offers": {
+    "priceLabel": "Por apenas",
+    "boosted": "Destacada",
+    "boost": "Destacar",
+    "title": "Ofertas Especiais"
+  },
+  "badge": {
+    "boosted": "Destacado",
+    "daysRemaining": "dias restantes",
+    "dayRemaining": "dia"
+  },
+  "navigation": {
+    "home": "Home",
+    "offers": "Ofertas",
+    "favorites": "Favoritos",
+    "profile": "Perfil"
+  },
+  "pages": {
+    "favorites": "Meus Favoritos",
+    "profile": "Meu Perfil",
+    "offers": "Ofertas Especiais"
+  }
+}
