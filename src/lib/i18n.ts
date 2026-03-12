@@ -12,11 +12,12 @@ export function useTranslations(namespace: TranslationKeys) {
 
 export function t(key: string): string {
   const keys = key.split('.')
-  let value: any = translations['pt-BR']
+  let value: Record<string, unknown> | string | unknown = translations['pt-BR']
   
   for (const k of keys) {
     if (value && typeof value === 'object' && k in value) {
-      value = value[k]
+      const nextValue = (value as Record<string, unknown>)[k]
+      value = nextValue
     } else {
       return key // Return the key itself if not found
     }
