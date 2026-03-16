@@ -34,6 +34,13 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
     window.location.reload()
   }
 
+  const handleBoostKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setIsBoostModalOpen(true)
+    }
+  }
+
   const isBoosted = boostExpiration !== null
 
   return (
@@ -58,7 +65,10 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
           
           {/* Preço colado na foto */}
           <div className="absolute bottom-0 left-0 bg-yellow-400 px-4 py-2 rounded-tr-xl shadow-sm">
-            <span className="text-xs font-bold text-yellow-900 uppercase block">Por apenas</span>
+            <span className="text-xs font-bold text-yellow-900 uppercase block">
+              {/* i18n: Price label */}
+              Por apenas
+            </span>
             <span className="text-2xl font-black text-red-700">R$ {offer.price}</span>
           </div>
 
@@ -87,6 +97,7 @@ export function OfferShowcase({ offer, boostExpiration }: OfferShowcaseProps) {
           <Button
             data-testid="boost-button"
             onClick={() => setIsBoostModalOpen(true)}
+            onKeyDown={handleBoostKeyDown}
             disabled={isBoosted}
             className={`flex-shrink-0 h-auto px-3 py-2 rounded-lg font-bold text-sm whitespace-nowrap transition-all ${
               isBoosted

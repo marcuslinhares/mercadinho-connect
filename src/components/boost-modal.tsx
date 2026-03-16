@@ -168,12 +168,19 @@ export function BoostModal({
 
             {/* Stripe Option */}
             <button
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setPaymentMethod('stripe')
+                }
+              }}
               onClick={() => setPaymentMethod('stripe')}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                 paymentMethod === 'stripe'
                   ? 'border-blue-600 bg-blue-50'
                   : 'border-gray-200 bg-white hover:border-blue-300'
               }`}
+              aria-label="Escolher Stripe como forma de pagamento"
             >
               <div className="flex items-center gap-3">
                 <div
@@ -198,12 +205,19 @@ export function BoostModal({
 
             {/* Mercado Pago Option */}
             <button
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setPaymentMethod('mercado_pago')
+                }
+              }}
               onClick={() => setPaymentMethod('mercado_pago')}
               className={`w-full p-4 rounded-lg border-2 transition-all text-left ${
                 paymentMethod === 'mercado_pago'
                   ? 'border-yellow-500 bg-yellow-50'
                   : 'border-gray-200 bg-white hover:border-yellow-300'
               }`}
+              aria-label="Escolher Mercado Pago como forma de pagamento"
             >
               <div className="flex items-center gap-3">
                 <div

@@ -7,6 +7,12 @@ interface BoostedBadgeProps {
   showCountdown?: boolean
 }
 
+// i18n: These strings are kept as constants for future i18n migration
+const BOOSTED_LABEL = 'Destacado'
+const DAY_LABEL = 'dia'
+const DAYS_LABEL = 'dias'
+const REMAINING_LABEL = 'restantes'
+
 /**
  * FRONTEND-002: Boosted Badge Component
  * Displays a visual indicator that an offer is boosted with countdown
@@ -56,13 +62,13 @@ export function BoostedBadge({
       className="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 px-3 py-1 rounded-full font-bold text-sm shadow-md border border-yellow-600 border-opacity-30"
     >
       <span className="inline-block mr-1">⭐</span>
-      <span>Destacado</span>
+      <span>{BOOSTED_LABEL}</span>
       {showCountdown && (
         <span
           data-testid="boost-countdown"
           className="ml-2 text-xs font-semibold opacity-90"
         >
-          ({daysRemaining} {daysRemaining === 1 ? 'dia' : 'dias'} restantes)
+          ({daysRemaining} {daysRemaining === 1 ? DAY_LABEL : DAYS_LABEL} {REMAINING_LABEL})
         </span>
       )}
     </div>
