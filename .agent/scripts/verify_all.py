@@ -67,7 +67,15 @@ VERIFICATION_SUITE = [
             ("Dependency Analysis", ".agent/skills/vulnerability-scanner/scripts/dependency_analyzer.py", False),
         ]
     },
-    
+
+    # P0.5: Build Verification
+    {
+        "category": "Build & Compile",
+        "checks": [
+            ("Build Check", ".agent/skills/build-verifier/scripts/build_checker.py", True),
+        ]
+    },
+
     # P1: Code Quality (CRITICAL)
     {
         "category": "Code Quality",
@@ -84,7 +92,15 @@ VERIFICATION_SUITE = [
             ("Schema Validation", ".agent/skills/database-design/scripts/schema_validator.py", False),
         ]
     },
-    
+
+    # P2.5: Code Complexity
+    {
+        "category": "Code Complexity",
+        "checks": [
+            ("Complexity Check", ".agent/skills/code-complexity/scripts/complexity_checker.py", True),
+        ]
+    },
+
     # P3: Testing
     {
         "category": "Testing",
