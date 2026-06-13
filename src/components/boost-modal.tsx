@@ -83,29 +83,28 @@ export function BoostModal({
 
     try {
       // Dynamic import at runtime
-      const { loadStripe } = await import('@stripe/js')
-      const stripe = await loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!)
+      const { loadStripe } = await import('@stripe/stripe-js')
+      const stripe = await loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_KEY!
+      )
 
       if (!stripe) {
         throw new Error('Stripe failed to load')
       }
 
-      // For now, we'll show an alert indicating payment would happen
-      // In production, this would open a payment modal or redirect
-      const { error } = await stripe.confirmCardPayment(boostData.clientSecret, {
-        payment_method: {
-          card: {
-            token: 'tok_visa', // This is a test token - in real app use actual card element
-          },
-        },
-      })
+      // Redirect to Stripe Checkout for payment
+      const { error } = await stripe.confirmCardPayment(
+        boostData.clientSecret
+      )
 
       if (error) {
         throw new Error(error.message || 'Payment failed')
       }
     } catch (err) {
-      if (err instanceof Error && err.message.includes('Cannot find module')) {
-        // Stripe JS not available, show user-friendly message
+      if (
+        err instanceof Error &&
+        err.message.includes('Cannot find module')
+      ) {
         console.warn('Stripe integration not available in this build')
         throw new Error(
           'Payment gateway not configured. Please contact support.'

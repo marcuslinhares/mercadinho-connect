@@ -1,126 +1,176 @@
-import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import Image from 'next/image'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-
-export const revalidate = 0 // Atualiza sempre que entrar (sem cache velho)
+import { t } from '@/lib/i18n'
 
 export const metadata: Metadata = {
-  title: 'Ofertas do Dia | Mercadinho Connect',
-  description: 'Confira as melhores ofertas e promoções do mercadinho do bairro! Produtos frescos com preços imperdíveis.',
+  title: 'Mercadinho Connect — Ofertas do seu bairro no WhatsApp',
+  description:
+    'Transforme seu mercadinho em um sucesso digital. Cadastre ofertas em segundos, compartilhe no WhatsApp e atraia mais clientes.',
   openGraph: {
-    title: 'Ofertas do Dia | Mercadinho Connect',
-    description: 'Confira as melhores ofertas e promoções do mercadinho do bairro!',
+    title: 'Mercadinho Connect — Ofertas do seu bairro no WhatsApp',
+    description:
+      'Transforme seu mercadinho digital. Cadastre ofertas, compartilhe no WhatsApp e atraia mais clientes.',
     type: 'website',
     locale: 'pt_BR',
+    siteName: 'Mercadinho Connect',
   },
 }
 
-export default async function ShowcasePage() {
-  const supabase = await createClient()
-  
-  let offers = []
-  let error = null
-  
-  try {
-    const { data, error: supabaseError } = await supabase.from('offers').select('*').order('created_at', { ascending: false })
-    if (supabaseError) {
-      console.error('Supabase error:', supabaseError)
-      error = supabaseError.message
-    } else {
-      offers = data || []
-    }
-  } catch (err) {
-    console.error('Error fetching offers:', err)
-    error = err instanceof Error ? err.message : 'Erro desconhecido'
-  }
-
-  // JSON-LD para GEO (AI Citation Readiness)
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: 'Mercadinho Connect',
-    description: 'Ofertas e promoções diárias do mercadinho do bairro',
-    offers: offers?.map(offer => ({
-      '@type': 'Offer',
-      name: offer.title,
-      price: offer.price,
-      priceCurrency: 'BRL',
-    })) || [],
-  }
-
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-24">
-      {/* JSON-LD para buscadores e AI */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      {/* Cabeçalho */}
-      <header className="bg-red-600 text-white p-4 sticky top-0 z-10 shadow-md">
-        <h1 className="text-xl font-bold flex items-center gap-2">
-          🍎 Mercadinho Connect
-          <span className="text-xs bg-white text-red-600 px-2 py-0.5 rounded-full ml-auto">Ofertas de Hoje</span>
-        </h1>
+    <div className="min-h-screen bg-gradient-to-b from-red-50 via-white to-slate-50">
+      {/* i18n: {t('landing.title')} */}
+      {/* Header */}
+      <header className="bg-red-600 text-white">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+          <h1 className="text-xl font-bold">🍎 Mercadinho Connect</h1>
+          <nav className="flex gap-4 text-sm">
+            <Link href="/ofertas" className="hover:underline">
+              Ver Ofertas
+            </Link>
+            <Link
+              href="/admin"
+              className="bg-white text-red-600 px-3 py-1 rounded-full font-semibold hover:bg-red-50 transition"
+            >
+              Sou Dono
+            </Link>
+          </nav>
+        </div>
       </header>
 
-      {/* Lista de Ofertas */}
-      <main className="p-4 space-y-4 max-w-md mx-auto">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">🔥 Promoções Imperdíveis</h2>
-        
-        {error && (
-          <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg text-yellow-800">
-            <p className="text-sm"><strong>ℹ️ Observação:</strong> {error}</p>
-            <p className="text-xs mt-2">A tabela de ofertas pode estar vazia ou sem permissão de acesso.</p>
-          </div>
-        )}
-        
-        {!offers || offers.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">
-            <p>Nenhuma oferta cadastrada ainda. 😴</p>
-            <Link href="/admin" className="text-blue-500 underline mt-2 block">Sou o dono (Cadastrar)</Link>
-          </div>
-        ) : (
-          offers.map((offer) => (
-            <Card key={offer.id} className="overflow-hidden border-none shadow-lg">
-              <div className="relative h-64 w-full bg-gray-200">
-                {offer.photo_url && (
-                  <Image 
-                    src={offer.photo_url} 
-                    alt={offer.title} 
-                    fill 
-                    className="object-cover"
-                  />
-                )}
-                {/* Preço "colado" na foto */}
-                <div className="absolute bottom-0 left-0 bg-yellow-400 px-4 py-2 rounded-tr-xl shadow-sm">
-                  <span className="text-xs font-bold text-yellow-900 uppercase block">Por apenas</span>
-                  <span className="text-2xl font-black text-red-700">R$ {offer.price}</span>
+      {/* Hero */}
+      <section className="max-w-4xl mx-auto px-4 py-16 md:py-24 text-center">
+        <span className="inline-block bg-yellow-100 text-yellow-800 text-xs font-bold px-3 py-1 rounded-full mb-4">
+          📱 App de Bolso do Mercadinho
+        </span>
+        <h2 className="text-4xl md:text-5xl font-black text-slate-900 leading-tight mb-4">
+          Suas ofertas no
+          <span className="text-red-600"> WhatsApp</span> sem complicação
+        </h2>
+        <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
+          Cadastre as promoções do dia em segundos. Um link só pro cliente ver
+          tudo. Chega de encher o grupo de foto.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            href="/admin"
+            className="bg-red-600 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg hover:bg-red-700 transition"
+          >
+            🚀 Quero Começar
+          </Link>
+          <Link
+            href="/ofertas"
+            className="bg-white text-slate-800 px-8 py-3 rounded-xl font-semibold text-lg border-2 border-slate-200 hover:border-slate-300 transition"
+          >
+            👀 Ver Ofertas
+          </Link>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="max-w-4xl mx-auto px-4 py-16">
+        <h3 className="text-2xl font-bold text-center text-slate-800 mb-12">
+          Como funciona?
+        </h3>
+        <div className="grid md:grid-cols-3 gap-8">
+          {steps.map((step, i) => (
+            <div key={i} className="text-center">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4">
+                {step.icon}
+              </div>
+              <h4 className="font-bold text-slate-800 mb-2">{step.title}</h4>
+              <p className="text-sm text-slate-500">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="bg-white border-t border-slate-100 py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <h3 className="text-2xl font-bold text-center text-slate-800 mb-12">
+            Por que usar?
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-6">
+            {benefits.map((b, i) => (
+              <div
+                key={i}
+                className="flex gap-4 items-start p-4 rounded-xl bg-slate-50"
+              >
+                <span className="text-2xl">{b.icon}</span>
+                <div>
+                  <h4 className="font-semibold text-slate-800">{b.title}</h4>
+                  <p className="text-sm text-slate-500">{b.desc}</p>
                 </div>
               </div>
-              <CardContent className="p-4">
-                <h2 className="text-lg font-bold text-slate-800 leading-tight">{offer.title}</h2>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </main>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Botão Flutuante do Zap */}
-      <div className="fixed bottom-6 right-6 left-6 max-w-md mx-auto">
-        <a 
-          href={`https://wa.me/?text=${encodeURIComponent('🔥 *Corre que tá barato!* Olha as ofertas de hoje no Mercadinho:\n\n' + (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white font-bold text-lg h-14 shadow-xl rounded-full animate-bounce">
-            📲 Mandar no Grupo!
-          </Button>
-        </a>
-      </div>
+      {/* CTA */}
+      <section className="bg-red-600 text-white py-16 text-center">
+        <div className="max-w-2xl mx-auto px-4">
+          <h3 className="text-3xl font-black mb-4">
+            Pronto para digitalizar seu mercadinho?
+          </h3>
+          <p className="text-red-100 mb-8">
+            Leva 2 minutos pra começar. Só tirar foto e publicar.
+          </p>
+          <Link
+            href="/admin"
+            className="inline-block bg-white text-red-600 px-10 py-4 rounded-xl font-bold text-lg shadow-xl hover:bg-red-50 transition"
+          >
+            ✅ Começar Agora
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 text-slate-400 text-sm py-8 text-center">
+        <p>🍎 Mercadinho Connect — Feito pro dono do mercadinho de bairro</p>
+      </footer>
     </div>
   )
 }
+
+const steps = [
+  {
+    icon: '📸',
+    title: 'Tire a Foto',
+    desc: 'Abra a câmera, fotografe o produto e digite o preço. Só isso.',
+  },
+  {
+    icon: '🔗',
+    title: 'Compartilhe o Link',
+    desc: 'Mande um único link no grupo do WhatsApp em vez de 30 fotos.',
+  },
+  {
+    icon: '💰',
+    title: 'Destaque Ofertas',
+    desc: 'Pague centavos para destacar uma oferta no topo por 7 dias.',
+  },
+]
+
+const benefits = [
+  {
+    icon: '📱',
+    title: 'Mobile-first',
+    desc: 'Funciona direto do celular. Sem app pra instalar.',
+  },
+  {
+    icon: '⚡',
+    title: 'Rápido',
+    desc: 'Cadastro em menos de 30 segundos. Foto, nome, preço, pronto.',
+  },
+  {
+    icon: '🔒',
+    title: 'Profissional',
+    desc: 'Card bonito com preço na foto. Passa confiança pro cliente.',
+  },
+  {
+    icon: '📊',
+    title: 'Métricas',
+    desc: 'Saiba quantas pessoas viram suas ofertas e clicaram.',
+  },
+]
